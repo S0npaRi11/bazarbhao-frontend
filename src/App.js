@@ -2,7 +2,6 @@
 import {useState} from 'react';
 import Card from './card'
 import './App.css';
-import { flushSync } from 'react-dom';
 
 function App() {
   const [responce, setResponce] = useState([])
