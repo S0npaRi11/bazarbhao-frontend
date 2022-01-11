@@ -2,12 +2,14 @@
 import {useState} from 'react';
 import Card from './card'
 import './App.css';
+import { flushSync } from 'react-dom';
 
 function App() {
   const [responce, setResponce] = useState([])
   const [commodity, setCommodity] = useState('')
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isError, setIsError] = useState(false)
 
   const selectCommodity = (e) => {
     setCommodity(e.target.value)
@@ -16,21 +18,24 @@ function App() {
   const getResponce = async () => {
     const URL = 'https://bazarbhao-api.herokuapp.com/' + commodity
     const data = await fetch(URL)
-    // const resJson = await res.json()
-
     return data
-    // setResponce(resJson)
   }
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    setIsLoading(!isLoading)
-
-    const res = await getResponce()
-    const resJson = await res.json()
-
-    setIsLoading(false)
-    setResponce(resJson)
+    
+    try{
+      setIsLoading(true)
+      setIsError(false)
+      const res = await getResponce()
+      const resJson = await res.json()
+  
+      setIsLoading(false)
+      setResponce(resJson)
+    }catch{
+      setIsLoading(false)
+      setIsError(true)
+    }
   }
   return (
 
@@ -211,7 +216,9 @@ function App() {
 
             <input type={'submit'} value={'Get Prices'}/>
           </form>
-          {isLoading && <p> Loading Data, please wait..... </p>}
+          {isLoading && <p className='center'> Loading Data, please wait..... </p>}
+
+          {isError && <p className='center text-red'> Error occured while fetching the data.<br /> Try again by clicking the button.</p>}
           <div className='grid mgrid'>
             {responce.map(r => (
               <Card  key={responce.indexOf(r)} info={r} commodity={document.querySelector(`option[value='${commodity}']`).textContent} />
